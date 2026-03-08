@@ -12,6 +12,7 @@ import TimelineView from "@/components/TimelineView";
 import DecisionTree from "@/components/DecisionTree";
 import ThemeToggle from "@/components/ThemeToggle";
 import StrategicAdvisor from "@/components/StrategicAdvisor";
+import AnalysisSkeleton from "@/components/AnalysisSkeleton";
 import { useFavorites } from "@/hooks/useFavorites";
 import { exportDecisionPdf } from "@/utils/exportPdf";
 
@@ -496,164 +497,179 @@ export default function Dashboard() {
         </div>
 
         {/* Results Panel */}
-        {result && (
+        {(result || isAnalyzing) && (
           <div className={`flex-col overflow-hidden transition-all duration-500 ${
             mobileTab !== "chat" ? "flex w-full lg:w-3/5" : "hidden lg:flex lg:w-3/5"
           }`}>
-            <div className="hidden lg:flex items-center gap-2 p-4 border-b border-border/30">
-              {viewTabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => { setActiveView(tab.key); setSelectedScenario(null); }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-display font-medium transition-all ${
-                    activeView === tab.key ? "bg-primary/15 text-primary border border-primary/30" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" /> {tab.label}
-                </button>
-              ))}
-            </div>
+            {!isAnalyzing && result && (
+              <div className="hidden lg:flex items-center gap-2 p-4 border-b border-border/30">
+                {viewTabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => { setActiveView(tab.key); setSelectedScenario(null); }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-display font-medium transition-all duration-200 ${
+                      activeView === tab.key
+                        ? "bg-primary/15 text-primary border border-primary/30 shadow-[0_0_12px_hsl(var(--primary)/0.1)]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" /> {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              <AnimatePresence mode="wait">
-                {(() => {
-                  const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : mobileTab === "advisor" ? "advisor" : "tree";
+              {isAnalyzing ? (
+                <AnalysisSkeleton />
+              ) : (
+                <AnimatePresence mode="wait">
+                  {(() => {
+                    const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : mobileTab === "advisor" ? "advisor" : "tree";
 
-                  if (currentView === "scenarios" && !selectedScenario) {
-                    return (
-                      <motion.div key="scenarios" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                        <div className="glass-premium rounded-2xl p-4 mb-2">
-                          <div className="flex items-center gap-2 mb-1">
-                            <GitBranch className="w-4 h-4 text-primary" />
-                            <h3 className="font-display font-bold text-foreground">Decision Paths</h3>
+                    const tabTransition = {
+                      initial: { opacity: 0, y: 12, scale: 0.98 },
+                      animate: { opacity: 1, y: 0, scale: 1 },
+                      exit: { opacity: 0, y: -8, scale: 0.98 },
+                      transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
+                    };
+
+                    if (currentView === "scenarios" && !selectedScenario) {
+                      return (
+                        <motion.div key="scenarios" {...tabTransition} className="space-y-4">
+                          <div className="glass-premium rounded-2xl p-4 mb-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <GitBranch className="w-4 h-4 text-primary" />
+                              <h3 className="font-display font-bold text-foreground">Decision Paths</h3>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{result!.scenarios.length} scenarios analyzed • Click to explore in detail</p>
                           </div>
-                          <p className="text-xs text-muted-foreground">{result.scenarios.length} scenarios analyzed • Click to explore in detail</p>
-                        </div>
-                        <div className="grid gap-4">
-                          {result.scenarios.map((s, i) => (
-                            <ScenarioCard key={s.id} scenario={s} index={i} onClick={() => setSelectedScenario(s)} />
-                          ))}
-                        </div>
-                      </motion.div>
-                    );
-                  }
+                          <div className="grid gap-4">
+                            {result!.scenarios.map((s, i) => (
+                              <ScenarioCard key={s.id} scenario={s} index={i} onClick={() => setSelectedScenario(s)} />
+                            ))}
+                          </div>
+                        </motion.div>
+                      );
+                    }
 
-                  if (currentView === "scenarios" && selectedScenario) {
-                    return (
-                      <motion.div key="detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedScenario(null)} className="mb-4">
-                          <ArrowLeft className="w-4 h-4 mr-1" /> All Scenarios
-                        </Button>
-                        <div className="glass-premium rounded-2xl overflow-hidden">
-                          {/* Header */}
-                          <div className="p-5 sm:p-6 border-b border-border/20">
-                            <h3 className="text-xl font-display font-bold text-foreground mb-2">{selectedScenario.title}</h3>
-                            <p className="text-sm text-muted-foreground leading-relaxed mb-4">{selectedScenario.description}</p>
-                            <div className="flex flex-wrap items-center gap-3">
-                              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
-                                selectedScenario.riskLevel === "Low" ? "bg-primary/10" : selectedScenario.riskLevel === "Medium" ? "bg-warm/10" : "bg-destructive/10"
-                              }`}>
-                                {selectedScenario.riskLevel === "Low" ? <Shield className="w-3.5 h-3.5 text-primary" /> : selectedScenario.riskLevel === "Medium" ? <AlertTriangle className="w-3.5 h-3.5 text-warm" /> : <Zap className="w-3.5 h-3.5 text-destructive" />}
-                                <span className={`text-xs font-display font-bold ${selectedScenario.riskLevel === "Low" ? "text-primary" : selectedScenario.riskLevel === "Medium" ? "text-warm" : "text-destructive"}`}>
-                                  {selectedScenario.riskLevel} Risk
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10">
-                                <TrendingUp className="w-3.5 h-3.5 text-primary" />
-                                <span className="text-xs font-display font-bold text-primary">{selectedScenario.growthPotential}% Growth</span>
-                              </div>
-                              <div className="flex items-center gap-2 ml-auto">
-                                <div className="h-2 w-24 bg-secondary rounded-full overflow-hidden">
-                                  <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${selectedScenario.growthPotential}%` }}
-                                    transition={{ duration: 0.8 }}
-                                    className="h-full gradient-primary rounded-full"
-                                  />
+                    if (currentView === "scenarios" && selectedScenario) {
+                      return (
+                        <motion.div key="detail" {...tabTransition}>
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedScenario(null)} className="mb-4">
+                            <ArrowLeft className="w-4 h-4 mr-1" /> All Scenarios
+                          </Button>
+                          <div className="glass-premium rounded-2xl overflow-hidden">
+                            {/* Header */}
+                            <div className="p-5 sm:p-6 border-b border-border/20">
+                              <h3 className="text-xl font-display font-bold text-foreground mb-2">{selectedScenario.title}</h3>
+                              <p className="text-sm text-muted-foreground leading-relaxed mb-4">{selectedScenario.description}</p>
+                              <div className="flex flex-wrap items-center gap-3">
+                                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
+                                  selectedScenario.riskLevel === "Low" ? "bg-primary/10" : selectedScenario.riskLevel === "Medium" ? "bg-warm/10" : "bg-destructive/10"
+                                }`}>
+                                  {selectedScenario.riskLevel === "Low" ? <Shield className="w-3.5 h-3.5 text-primary" /> : selectedScenario.riskLevel === "Medium" ? <AlertTriangle className="w-3.5 h-3.5 text-warm" /> : <Zap className="w-3.5 h-3.5 text-destructive" />}
+                                  <span className={`text-xs font-display font-bold ${selectedScenario.riskLevel === "Low" ? "text-primary" : selectedScenario.riskLevel === "Medium" ? "text-warm" : "text-destructive"}`}>
+                                    {selectedScenario.riskLevel} Risk
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10">
+                                  <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                                  <span className="text-xs font-display font-bold text-primary">{selectedScenario.growthPotential}% Growth</span>
+                                </div>
+                                <div className="flex items-center gap-2 ml-auto">
+                                  <div className="h-2 w-24 bg-secondary rounded-full overflow-hidden">
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${selectedScenario.growthPotential}%` }}
+                                      transition={{ duration: 0.8 }}
+                                      className="h-full gradient-primary rounded-full"
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Timeline */}
-                          <div className="p-5 sm:p-6 border-b border-border/20">
-                            <h4 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-primary" /> 5-Year Timeline
-                            </h4>
-                            <div className="space-y-4 relative">
-                              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/40 via-accent/30 to-warm/20" />
-                              {selectedScenario.timeline.map((t, i) => (
-                                <motion.div
-                                  key={i}
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: i * 0.08 }}
-                                  className="flex gap-4 items-start relative"
-                                >
-                                  <div className="w-4 h-4 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center shrink-0 z-10">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                  </div>
-                                  <div className="flex-1 glass rounded-lg px-4 py-3">
-                                    <span className="text-xs font-display font-bold text-primary">{t.year}</span>
-                                    <p className="text-sm text-muted-foreground leading-relaxed mt-0.5">{t.milestone}</p>
-                                  </div>
-                                </motion.div>
-                              ))}
+                            {/* Timeline */}
+                            <div className="p-5 sm:p-6 border-b border-border/20">
+                              <h4 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-primary" /> 5-Year Timeline
+                              </h4>
+                              <div className="space-y-4 relative">
+                                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/40 via-accent/30 to-warm/20" />
+                                {selectedScenario.timeline.map((t, i) => (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.08 }}
+                                    className="flex gap-4 items-start relative"
+                                  >
+                                    <div className="w-4 h-4 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center shrink-0 z-10">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                    </div>
+                                    <div className="flex-1 glass rounded-lg px-4 py-3">
+                                      <span className="text-xs font-display font-bold text-primary">{t.year}</span>
+                                      <p className="text-sm text-muted-foreground leading-relaxed mt-0.5">{t.milestone}</p>
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="p-5 sm:p-6">
+                              <h4 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-accent" /> Recommended Actions
+                              </h4>
+                              <div className="space-y-3">
+                                {selectedScenario.actions.map((a, i) => (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.06 }}
+                                    className="flex items-start gap-3 glass rounded-lg px-4 py-3 group hover:border-primary/20 transition-all"
+                                  >
+                                    <span className="w-6 h-6 rounded-full gradient-primary text-primary-foreground flex items-center justify-center shrink-0 text-xs font-bold">{i + 1}</span>
+                                    <p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors">{a}</p>
+                                  </motion.div>
+                                ))}
+                              </div>
                             </div>
                           </div>
+                        </motion.div>
+                      );
+                    }
 
-                          {/* Actions */}
-                          <div className="p-5 sm:p-6">
-                            <h4 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-accent" /> Recommended Actions
-                            </h4>
-                            <div className="space-y-3">
-                              {selectedScenario.actions.map((a, i) => (
-                                <motion.div
-                                  key={i}
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: i * 0.06 }}
-                                  className="flex items-start gap-3 glass rounded-lg px-4 py-3 group hover:border-primary/20 transition-all"
-                                >
-                                  <span className="w-6 h-6 rounded-full gradient-primary text-primary-foreground flex items-center justify-center shrink-0 text-xs font-bold">{i + 1}</span>
-                                  <p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors">{a}</p>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  }
+                    if (currentView === "timeline") {
+                      return (
+                        <motion.div key="timeline" {...tabTransition}>
+                          <TimelineView scenarios={result!.scenarios} />
+                        </motion.div>
+                      );
+                    }
 
-                  if (currentView === "timeline") {
-                    return (
-                      <motion.div key="timeline" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <TimelineView scenarios={result.scenarios} />
-                      </motion.div>
-                    );
-                  }
+                    if (currentView === "tree") {
+                      return (
+                        <motion.div key="tree" {...tabTransition}>
+                          <DecisionTree scenarios={result!.scenarios} question={currentQuestion} />
+                        </motion.div>
+                      );
+                    }
 
-                  if (currentView === "tree") {
-                    return (
-                      <motion.div key="tree" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-x-auto">
-                        <DecisionTree scenarios={result.scenarios} question={currentQuestion} />
-                      </motion.div>
-                    );
-                  }
+                    if (currentView === "advisor") {
+                      return (
+                        <motion.div key="advisor" {...tabTransition}>
+                          <StrategicAdvisor summary={result!.summary} scenarios={result!.scenarios} question={currentQuestion} />
+                        </motion.div>
+                      );
+                    }
 
-                  if (currentView === "advisor") {
-                    return (
-                      <motion.div key="advisor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <StrategicAdvisor summary={result.summary} scenarios={result.scenarios} question={currentQuestion} />
-                      </motion.div>
-                    );
-                  }
-
-                  return null;
-                })()}
-              </AnimatePresence>
+                    return null;
+                  })()}
+                </AnimatePresence>
+              )}
             </div>
           </div>
         )}
