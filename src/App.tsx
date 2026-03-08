@@ -13,6 +13,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ComparePage from "./pages/ComparePage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SharedDecisionPage from "./pages/SharedDecisionPage";
+import FavoritesPage from "./pages/FavoritesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
