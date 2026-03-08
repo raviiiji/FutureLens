@@ -192,6 +192,11 @@ This pipeline transforms natural language questions into actionable insights.
 
 ---
 
+## Demo Video
+[Aevora Demo Video](https://youtu.be/acgx_toH6jg)
+
+---
+
 ## Screenshots
 
 - Home Page
