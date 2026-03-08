@@ -185,6 +185,9 @@ export default function Dashboard() {
               <Button variant="ghost" size="sm" onClick={() => navigate("/history")}>
                 <History className="w-4 h-4" />
               </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/favorites")}>
+                <Star className="w-4 h-4" />
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate("/compare")}>
                 <GitCompare className="w-4 h-4" />
               </Button>
