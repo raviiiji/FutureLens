@@ -47,6 +47,35 @@ export type Database = {
         }
         Relationships: []
       }
+      favorites: {
+        Row: {
+          created_at: string
+          decision_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decision_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
