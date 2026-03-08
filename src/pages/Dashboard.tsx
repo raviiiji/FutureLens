@@ -49,6 +49,8 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree">("scenarios");
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree">("chat");
+  const [lastDecisionId, setLastDecisionId] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!input.trim() || isAnalyzing) return;
