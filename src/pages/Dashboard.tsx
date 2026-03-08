@@ -328,7 +328,7 @@ export default function Dashboard() {
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               <AnimatePresence mode="wait">
                 {(() => {
-                  const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : "tree";
+                  const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : mobileTab === "advisor" ? "advisor" : "tree";
 
                   if (currentView === "scenarios" && !selectedScenario) {
                     return (
