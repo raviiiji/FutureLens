@@ -120,7 +120,7 @@ serve(async (req) => {
 
     let parsed;
     try {
-      const jsonMatch = content.match(/\`\`\`(?:json)?\\s*([\\s\\S]*?)\`\`\`/);
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
       const jsonStr = jsonMatch ? jsonMatch[1].trim() : content.trim();
       parsed = JSON.parse(jsonStr);
     } catch (e) {
