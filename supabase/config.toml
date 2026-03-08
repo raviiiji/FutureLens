@@ -1,0 +1,4 @@
+project_id = "xpbjqopbvvufwereiwtr"
+
+[functions.simulate-decision]
+verify_jwt = false
