@@ -108,7 +108,7 @@ serve(async (req) => {
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
-      throw new Error(\`AI gateway error: \${response.status}\`);
+      throw new Error(`AI gateway error: ${response.status}`);
     }
 
     const data = await response.json();
