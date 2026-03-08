@@ -398,6 +398,14 @@ export default function Dashboard() {
                     );
                   }
 
+                  if (currentView === "advisor") {
+                    return (
+                      <motion.div key="advisor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <StrategicAdvisor summary={result.summary} scenarios={result.scenarios} question={currentQuestion} />
+                      </motion.div>
+                    );
+                  }
+
                   return null;
                 })()}
               </AnimatePresence>
