@@ -205,7 +205,7 @@ export default function Dashboard() {
 
       {result && (
         <div className="lg:hidden flex border-b border-border/30 bg-card/50 z-10">
-          {(["chat", "scenarios", "timeline", "tree"] as const).map((tab) => (
+          {(["chat", "scenarios", "timeline", "tree", "advisor"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => { setMobileTab(tab); if (tab !== "scenarios") setSelectedScenario(null); }}
@@ -217,6 +217,7 @@ export default function Dashboard() {
               {tab === "scenarios" && "🔀 Paths"}
               {tab === "timeline" && "📅 Timeline"}
               {tab === "tree" && "🌳 Tree"}
+              {tab === "advisor" && "💡 Advisor"}
             </button>
           ))}
         </div>
