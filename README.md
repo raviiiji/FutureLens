@@ -190,49 +190,80 @@ This pipeline transforms natural language questions into actionable insights.
 ## Demo App
 [Aevora App](https://aevora.lovable.app)
 
+---
+
 ## Screenshots
 
 - Home Page
 <img width="1920" height="861" alt="Screenshot (189)" src="https://github.com/user-attachments/assets/99674447-fbd4-4a13-b43c-96e48cb896af" />
 
+---
+
 - Powerful Features
 <img width="1920" height="843" alt="Screenshot (207)" src="https://github.com/user-attachments/assets/b8392970-f0d8-4b0d-ae27-eca00c644da9" />
+
+---
 
 - Process
 <img width="1920" height="855" alt="Screenshot (191)" src="https://github.com/user-attachments/assets/154485d4-6286-486e-b618-c4cb65cc3949" />
 
+---
+
 - Preview
 <img width="1920" height="851" alt="Screenshot (192)" src="https://github.com/user-attachments/assets/9d05e8b4-d3d8-4ac9-b843-03fd5e01b4e5" />
+
+---
 
 - Real-World Use Cases
 <img width="1920" height="852" alt="Screenshot (193)" src="https://github.com/user-attachments/assets/a902df4c-e67f-4919-a5bc-e3f7686b0ca6" />
 
+---
+
 - Ready to Simulate Your Future?
 <img width="1920" height="850" alt="Screenshot (194)" src="https://github.com/user-attachments/assets/a730a1f6-141f-4665-88c5-d3f74286a578" />
+
+---
 
 - Describe your situation and AI will simulate multiple future outcomes.
 <img width="1920" height="849" alt="Screenshot (195)" src="https://github.com/user-attachments/assets/7cc1ce0e-cf54-43d9-b7ac-2057ef96f552" />
 
+---
+
 - Chats & Path
 <img width="1920" height="846" alt="Screenshot (196)" src="https://github.com/user-attachments/assets/251f7359-80cd-468a-a17b-d12409d829f9" />
+
+---
 
 - Chats & Timeline
 <img width="1920" height="864" alt="Screenshot (197)" src="https://github.com/user-attachments/assets/9a16dcf6-faf2-4e58-9b4e-1167f3e0d3d7" />
 
+
+---
+
 - Chats & Timeline
 <img width="1920" height="852" alt="Screenshot (198)" src="https://github.com/user-attachments/assets/751f11b2-96b2-47da-a9d0-c53458f65eab" />
+
+---
 
 - Chats & Timeline
 <img width="1920" height="850" alt="Screenshot (199)" src="https://github.com/user-attachments/assets/299f9825-1bcc-41f7-9f84-da224121a21f" />
 
+---
+
 - Chats & Tree
 <img width="1920" height="868" alt="Screenshot (200)" src="https://github.com/user-attachments/assets/ce6c3877-34e0-4322-a0a4-8e16f5f5d7de" />
+
+---
 
 - Chats & Advisor
 <img width="1920" height="846" alt="Screenshot (201)" src="https://github.com/user-attachments/assets/7f6d6389-d441-475e-bc0b-6ed799a5be52" />
 
+---
+
 - Chats & Advisor
 <img width="1920" height="850" alt="Screenshot (203)" src="https://github.com/user-attachments/assets/f7b83ee9-3671-4740-b81c-08d9e02bf803" />
+
+---
 
 - Chats & Advisor
 <img width="1920" height="852" alt="Screenshot (204)" src="https://github.com/user-attachments/assets/10ec879b-64a3-48bb-ae4b-1bc72f4e7325" />
