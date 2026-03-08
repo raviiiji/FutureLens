@@ -48,7 +48,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree">("scenarios");
+  const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree" | "advisor">("scenarios");
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree">("chat");
   const [lastDecisionId, setLastDecisionId] = useState<string | null>(null);
