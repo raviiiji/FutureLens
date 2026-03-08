@@ -50,7 +50,7 @@ export default function Dashboard() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree" | "advisor">("scenarios");
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
-  const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree">("chat");
+  const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree" | "advisor">("chat");
   const [lastDecisionId, setLastDecisionId] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
