@@ -18,10 +18,11 @@ const SYSTEM_PROMPT = `You are Aevora, an AI Decision Intelligence Engine. When 
       "riskLevel": "Low" | "Medium" | "High",
       "growthPotential": 0-100,
       "timeline": [
-        { "year": "Year 1", "milestone": "What happens" },
-        { "year": "Year 2", "milestone": "What happens" },
-        { "year": "Year 3", "milestone": "What happens" },
-        { "year": "Year 5", "milestone": "What happens" }
+        { "year": "Year 1", "milestone": "What happens in year 1" },
+        { "year": "Year 2", "milestone": "What happens in year 2" },
+        { "year": "Year 3", "milestone": "What happens in year 3" },
+        { "year": "Year 4", "milestone": "What happens in year 4" },
+        { "year": "Year 5", "milestone": "What happens in year 5" }
       ],
       "actions": ["Action 1", "Action 2", "Action 3", "Action 4"]
     }
