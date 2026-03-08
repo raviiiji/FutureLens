@@ -1,6 +1,6 @@
 # Aevora
 
-<img width="1536" height="1024" alt="Designer (65)" src="https://github.com/user-attachments/assets/205973e5-7fb3-46ee-b7e7-8709cb947b3e" />
+<img width="1536" height="1024" alt="Designer (67)" src="https://github.com/user-attachments/assets/7d18df32-9d52-4ada-b1e5-be534474762d" />
 
 ## AI Decision Intelligence Platform  
 ### Simulate Tomorrow. Decide Today.
