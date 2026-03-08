@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Send, ArrowLeft, Loader2, GitBranch, Clock, AlertTriangle, TrendingUp, Sparkles, RotateCcw, History, LogOut, User, GitCompare, TreePine, UserCircle } from "lucide-react";
+import { Brain, Send, ArrowLeft, Loader2, GitBranch, Clock, AlertTriangle, TrendingUp, Sparkles, RotateCcw, History, LogOut, User, GitCompare, TreePine, UserCircle, Share2, BarChart3, Link2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,6 +31,13 @@ interface Message {
   content: string;
 }
 
+// Helper to generate share token
+function generateShareToken() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, isGuest, signOut } = useAuth();
@@ -42,6 +49,8 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree">("scenarios");
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree">("chat");
+  const [lastDecisionId, setLastDecisionId] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!input.trim() || isAnalyzing) return;
@@ -67,12 +76,13 @@ export default function Dashboard() {
       setMessages((prev) => [...prev, { role: "assistant", content: analysis.summary }]);
 
       if (user) {
-        await supabase.from("decisions").insert({
+        const { data: inserted } = await supabase.from("decisions").insert({
           user_id: user.id,
           question,
           summary: analysis.summary,
           scenarios: analysis.scenarios as any,
-        });
+        }).select("id").single();
+        if (inserted) setLastDecisionId(inserted.id);
       }
     } catch (err: any) {
       console.error("Analysis error:", err);
@@ -90,6 +100,27 @@ export default function Dashboard() {
     setInput("");
     setCurrentQuestion("");
     setMobileTab("chat");
+    setLastDecisionId(null);
+  };
+
+  const handleShare = async () => {
+    if (!lastDecisionId) { toast.error("No decision to share"); return; }
+    setShareLoading(true);
+    try {
+      const token = generateShareToken();
+      const { error } = await supabase
+        .from("decisions")
+        .update({ share_token: token } as any)
+        .eq("id", lastDecisionId);
+      if (error) throw error;
+      const url = `${window.location.origin}/shared/${token}`;
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied to clipboard!");
+    } catch (err: any) {
+      toast.error("Failed to create share link");
+    } finally {
+      setShareLoading(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -131,6 +162,12 @@ export default function Dashboard() {
           <span className="font-display font-bold text-foreground hidden sm:inline">Aevora</span>
         </div>
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          {result && lastDecisionId && (
+            <Button variant="ghost" size="sm" onClick={handleShare} disabled={shareLoading}>
+              {shareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+              <span className="hidden sm:inline ml-1">Share</span>
+            </Button>
+          )}
           {messages.length > 0 && (
             <Button variant="ghost" size="sm" onClick={handleReset}>
               <RotateCcw className="w-4 h-4" />
@@ -139,6 +176,10 @@ export default function Dashboard() {
           )}
           {user && !isGuest && (
             <>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")}>
+                <BarChart3 className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">Analytics</span>
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate("/history")}>
                 <History className="w-4 h-4" />
                 <span className="hidden sm:inline ml-1">History</span>
