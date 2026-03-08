@@ -133,6 +133,7 @@ export default function Dashboard() {
     { key: "scenarios" as const, label: "Scenarios", icon: GitBranch },
     { key: "timeline" as const, label: "Timeline", icon: Clock },
     { key: "tree" as const, label: "Tree", icon: TreePine },
+    { key: "advisor" as const, label: "Advisor", icon: Lightbulb },
   ];
 
   return (
