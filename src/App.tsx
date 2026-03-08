@@ -11,6 +11,8 @@ import AuthPage from "./pages/AuthPage";
 import HistoryPage from "./pages/HistoryPage";
 import ProfilePage from "./pages/ProfilePage";
 import ComparePage from "./pages/ComparePage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import SharedDecisionPage from "./pages/SharedDecisionPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,10 +36,12 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<LandingPage />} />
     <Route path="/auth" element={<AuthPage />} />
+    <Route path="/shared/:token" element={<SharedDecisionPage />} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
     <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
     <Route path="/compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
+    <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

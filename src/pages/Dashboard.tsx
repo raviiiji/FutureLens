@@ -100,6 +100,27 @@ export default function Dashboard() {
     setInput("");
     setCurrentQuestion("");
     setMobileTab("chat");
+    setLastDecisionId(null);
+  };
+
+  const handleShare = async () => {
+    if (!lastDecisionId) { toast.error("No decision to share"); return; }
+    setShareLoading(true);
+    try {
+      const token = generateShareToken();
+      const { error } = await supabase
+        .from("decisions")
+        .update({ share_token: token } as any)
+        .eq("id", lastDecisionId);
+      if (error) throw error;
+      const url = `${window.location.origin}/shared/${token}`;
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied to clipboard!");
+    } catch (err: any) {
+      toast.error("Failed to create share link");
+    } finally {
+      setShareLoading(false);
+    }
   };
 
   const handleSignOut = async () => {
