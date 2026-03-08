@@ -20,6 +20,7 @@ export type Database = {
           id: string
           question: string
           scenarios: Json | null
+          share_token: string | null
           summary: string | null
           updated_at: string
           user_id: string
@@ -29,6 +30,7 @@ export type Database = {
           id?: string
           question: string
           scenarios?: Json | null
+          share_token?: string | null
           summary?: string | null
           updated_at?: string
           user_id: string
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           question?: string
           scenarios?: Json | null
+          share_token?: string | null
           summary?: string | null
           updated_at?: string
           user_id?: string
