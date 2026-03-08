@@ -76,12 +76,13 @@ export default function Dashboard() {
       setMessages((prev) => [...prev, { role: "assistant", content: analysis.summary }]);
 
       if (user) {
-        await supabase.from("decisions").insert({
+        const { data: inserted } = await supabase.from("decisions").insert({
           user_id: user.id,
           question,
           summary: analysis.summary,
           scenarios: analysis.scenarios as any,
-        });
+        }).select("id").single();
+        if (inserted) setLastDecisionId(inserted.id);
       }
     } catch (err: any) {
       console.error("Analysis error:", err);
