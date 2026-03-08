@@ -17,11 +17,7 @@ export default function AuthPage() {
   const { signIn, signUp, signInAsGuest, user } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
-  if (user) {
-    navigate("/dashboard", { replace: true });
-    return null;
-  }
+  if (user) { navigate("/dashboard", { replace: true }); return null; }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,35 +33,22 @@ export default function AuthPage() {
       navigate("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Authentication failed");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const handleGuest = async () => {
     setLoading(true);
-    try {
-      await signInAsGuest();
-      toast.success("Welcome, Guest!");
-      navigate("/dashboard");
-    } catch (err: any) {
-      toast.error(err.message || "Guest login failed");
-    } finally {
-      setLoading(false);
-    }
+    try { await signInAsGuest(); toast.success("Welcome, Guest!"); navigate("/dashboard"); }
+    catch (err: any) { toast.error(err.message || "Guest login failed"); }
+    finally { setLoading(false); }
   };
 
   const handleGoogle = async () => {
     setLoading(true);
     try {
-      const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
+      const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
       if (error) throw error;
-    } catch (err: any) {
-      toast.error(err.message || "Google sign-in failed");
-      setLoading(false);
-    }
+    } catch (err: any) { toast.error(err.message || "Google sign-in failed"); setLoading(false); }
   };
 
   return (
@@ -73,19 +56,13 @@ export default function AuthPage() {
       <div className="absolute inset-0 grid-pattern opacity-20" />
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] orb-1 rounded-full animate-pulse-glow" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] orb-2 rounded-full animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
-      <div className="absolute top-1/2 right-1/3 w-[300px] h-[300px] orb-3 rounded-full animate-pulse-glow" style={{ animationDelay: "3s" }} />
+      <div className="absolute top-1/2 right-1/3 w-[300px] h-[300px] orb-4 rounded-full animate-pulse-glow" style={{ animationDelay: "3s" }} />
 
-      <div className="absolute top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
+      <div className="absolute top-4 right-4 z-50"><ThemeToggle /></div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md relative z-10"
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 glow-primary">
+          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 glow-primary animate-float">
             <Brain className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-display font-bold text-foreground">
@@ -96,8 +73,7 @@ export default function AuthPage() {
           </p>
         </div>
 
-        <div className="glass rounded-2xl p-6 space-y-5">
-          {/* Google Sign-In */}
+        <div className="glass-premium rounded-2xl p-6 space-y-5">
           <Button variant="glass" size="lg" className="w-full gap-3" onClick={handleGoogle} disabled={loading}>
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -109,12 +85,8 @@ export default function AuthPage() {
           </Button>
 
           <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-3 text-muted-foreground">or continue with email</span>
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-card px-3 text-muted-foreground">or continue with email</span></div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -138,12 +110,8 @@ export default function AuthPage() {
           </form>
 
           <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-3 text-muted-foreground">or</span>
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-card px-3 text-muted-foreground">or</span></div>
           </div>
 
           <Button variant="glass" size="lg" className="w-full" onClick={handleGuest} disabled={loading}>

@@ -17,13 +17,18 @@ interface ScenarioCardProps {
   onClick: () => void;
 }
 
+const cardColors = [
+  { border: "border-l-primary", accent: "from-primary/5 to-transparent" },
+  { border: "border-l-accent", accent: "from-accent/5 to-transparent" },
+  { border: "border-l-warm", accent: "from-warm/5 to-transparent" },
+];
+
 export default function ScenarioCard({ scenario, index, onClick }: ScenarioCardProps) {
   const riskColor =
-    scenario.riskLevel === "Low"
-      ? "text-primary"
-      : scenario.riskLevel === "Medium"
-        ? "text-yellow-400"
-        : "text-destructive";
+    scenario.riskLevel === "Low" ? "text-primary" :
+    scenario.riskLevel === "Medium" ? "text-warm" : "text-destructive";
+
+  const colorSet = cardColors[index % cardColors.length];
 
   return (
     <motion.button
@@ -31,13 +36,13 @@ export default function ScenarioCard({ scenario, index, onClick }: ScenarioCardP
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
       onClick={onClick}
-      className="glass glass-hover rounded-xl p-5 text-left w-full group"
+      className={`glass glass-hover rounded-xl p-5 text-left w-full group border-l-4 ${colorSet.border} bg-gradient-to-r ${colorSet.accent}`}
     >
       <div className="flex items-start justify-between mb-3">
         <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
           {scenario.title}
         </h3>
-        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
+        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0 mt-1" />
       </div>
       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{scenario.description}</p>
       <div className="flex items-center gap-4">
@@ -51,9 +56,11 @@ export default function ScenarioCard({ scenario, index, onClick }: ScenarioCardP
         </div>
         <div className="ml-auto">
           <div className="h-1.5 w-24 bg-secondary rounded-full overflow-hidden">
-            <div
-              className="h-full gradient-primary rounded-full transition-all duration-500"
-              style={{ width: `${scenario.growthPotential}%` }}
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${scenario.growthPotential}%` }}
+              transition={{ delay: index * 0.1 + 0.3, duration: 0.8, ease: "easeOut" }}
+              className="h-full gradient-primary rounded-full"
             />
           </div>
         </div>
