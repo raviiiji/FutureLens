@@ -10,6 +10,7 @@ import ScenarioCard from "@/components/ScenarioCard";
 import TimelineView from "@/components/TimelineView";
 import DecisionTree from "@/components/DecisionTree";
 import ThemeToggle from "@/components/ThemeToggle";
+import StrategicAdvisor from "@/components/StrategicAdvisor";
 import { useFavorites } from "@/hooks/useFavorites";
 import { exportDecisionPdf } from "@/utils/exportPdf";
 
