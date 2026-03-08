@@ -13,6 +13,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ComparePage from "./pages/ComparePage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SharedDecisionPage from "./pages/SharedDecisionPage";
+import FavoritesPage from "./pages/FavoritesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const AppRoutes = () => (
     <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
     <Route path="/compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
     <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+    <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

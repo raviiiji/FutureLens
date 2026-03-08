@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Send, ArrowLeft, Loader2, GitBranch, Clock, AlertTriangle, TrendingUp, Sparkles, RotateCcw, History, LogOut, User, GitCompare, TreePine, UserCircle, Share2, BarChart3, Star, Download } from "lucide-react";
+import { Brain, Send, ArrowLeft, Loader2, GitBranch, Clock, AlertTriangle, TrendingUp, Sparkles, RotateCcw, History, LogOut, User, GitCompare, TreePine, UserCircle, Share2, BarChart3, Star, Download, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,6 +10,7 @@ import ScenarioCard from "@/components/ScenarioCard";
 import TimelineView from "@/components/TimelineView";
 import DecisionTree from "@/components/DecisionTree";
 import ThemeToggle from "@/components/ThemeToggle";
+import StrategicAdvisor from "@/components/StrategicAdvisor";
 import { useFavorites } from "@/hooks/useFavorites";
 import { exportDecisionPdf } from "@/utils/exportPdf";
 
@@ -47,9 +48,9 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree">("scenarios");
+  const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree" | "advisor">("scenarios");
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
-  const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree">("chat");
+  const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree" | "advisor">("chat");
   const [lastDecisionId, setLastDecisionId] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -132,6 +133,7 @@ export default function Dashboard() {
     { key: "scenarios" as const, label: "Scenarios", icon: GitBranch },
     { key: "timeline" as const, label: "Timeline", icon: Clock },
     { key: "tree" as const, label: "Tree", icon: TreePine },
+    { key: "advisor" as const, label: "Advisor", icon: Lightbulb },
   ];
 
   return (
@@ -183,6 +185,9 @@ export default function Dashboard() {
               <Button variant="ghost" size="sm" onClick={() => navigate("/history")}>
                 <History className="w-4 h-4" />
               </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/favorites")}>
+                <Star className="w-4 h-4" />
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate("/compare")}>
                 <GitCompare className="w-4 h-4" />
               </Button>
@@ -200,7 +205,7 @@ export default function Dashboard() {
 
       {result && (
         <div className="lg:hidden flex border-b border-border/30 bg-card/50 z-10">
-          {(["chat", "scenarios", "timeline", "tree"] as const).map((tab) => (
+          {(["chat", "scenarios", "timeline", "tree", "advisor"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => { setMobileTab(tab); if (tab !== "scenarios") setSelectedScenario(null); }}
@@ -212,6 +217,7 @@ export default function Dashboard() {
               {tab === "scenarios" && "🔀 Paths"}
               {tab === "timeline" && "📅 Timeline"}
               {tab === "tree" && "🌳 Tree"}
+              {tab === "advisor" && "💡 Advisor"}
             </button>
           ))}
         </div>
@@ -322,7 +328,7 @@ export default function Dashboard() {
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               <AnimatePresence mode="wait">
                 {(() => {
-                  const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : "tree";
+                  const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : mobileTab === "advisor" ? "advisor" : "tree";
 
                   if (currentView === "scenarios" && !selectedScenario) {
                     return (
@@ -388,6 +394,14 @@ export default function Dashboard() {
                     return (
                       <motion.div key="tree" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-x-auto">
                         <DecisionTree scenarios={result.scenarios} question={currentQuestion} />
+                      </motion.div>
+                    );
+                  }
+
+                  if (currentView === "advisor") {
+                    return (
+                      <motion.div key="advisor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <StrategicAdvisor summary={result.summary} scenarios={result.scenarios} question={currentQuestion} />
                       </motion.div>
                     );
                   }
