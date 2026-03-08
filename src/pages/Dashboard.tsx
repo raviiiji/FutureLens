@@ -162,6 +162,12 @@ export default function Dashboard() {
           <span className="font-display font-bold text-foreground hidden sm:inline">Aevora</span>
         </div>
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          {result && lastDecisionId && (
+            <Button variant="ghost" size="sm" onClick={handleShare} disabled={shareLoading}>
+              {shareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+              <span className="hidden sm:inline ml-1">Share</span>
+            </Button>
+          )}
           {messages.length > 0 && (
             <Button variant="ghost" size="sm" onClick={handleReset}>
               <RotateCcw className="w-4 h-4" />
@@ -170,6 +176,10 @@ export default function Dashboard() {
           )}
           {user && !isGuest && (
             <>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")}>
+                <BarChart3 className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">Analytics</span>
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate("/history")}>
                 <History className="w-4 h-4" />
                 <span className="hidden sm:inline ml-1">History</span>
