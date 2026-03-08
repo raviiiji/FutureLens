@@ -148,7 +148,7 @@ Example:
 
 Year 1 — Skill development  
 Year 2 — Entry-level opportunities  
-Year 3 — Career growth  
+Year 3-4 — Career growth  
 Year 5 — Leadership potential
 
 ## Scenario Comparison
