@@ -12,6 +12,7 @@ import TimelineView from "@/components/TimelineView";
 import DecisionTree from "@/components/DecisionTree";
 import ThemeToggle from "@/components/ThemeToggle";
 import StrategicAdvisor from "@/components/StrategicAdvisor";
+import AnalysisSkeleton from "@/components/AnalysisSkeleton";
 import { useFavorites } from "@/hooks/useFavorites";
 import { exportDecisionPdf } from "@/utils/exportPdf";
 
