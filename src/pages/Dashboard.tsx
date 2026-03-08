@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Send, ArrowLeft, Loader2, GitBranch, Clock, AlertTriangle, TrendingUp, Sparkles, RotateCcw, History, LogOut, User, GitCompare, TreePine, UserCircle, Share2, BarChart3, Link2, Check } from "lucide-react";
+import { Brain, Send, ArrowLeft, Loader2, GitBranch, Clock, AlertTriangle, TrendingUp, Sparkles, RotateCcw, History, LogOut, User, GitCompare, TreePine, UserCircle, Share2, BarChart3, Star, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,6 +10,8 @@ import ScenarioCard from "@/components/ScenarioCard";
 import TimelineView from "@/components/TimelineView";
 import DecisionTree from "@/components/DecisionTree";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useFavorites } from "@/hooks/useFavorites";
+import { exportDecisionPdf } from "@/utils/exportPdf";
 
 interface Scenario {
   id: number;
@@ -31,7 +33,6 @@ interface Message {
   content: string;
 }
 
-// Helper to generate share token
 function generateShareToken() {
   return Array.from(crypto.getRandomValues(new Uint8Array(16)))
     .map((b) => b.toString(16).padStart(2, "0"))
@@ -51,6 +52,7 @@ export default function Dashboard() {
   const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree">("chat");
   const [lastDecisionId, setLastDecisionId] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   const handleSubmit = async () => {
     if (!input.trim() || isAnalyzing) return;
@@ -59,15 +61,11 @@ export default function Dashboard() {
     setResult(null);
     setSelectedScenario(null);
     setCurrentQuestion(question);
-
     setMessages((prev) => [...prev, { role: "user", content: question }]);
     setIsAnalyzing(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("simulate-decision", {
-        body: { question },
-      });
-
+      const { data, error } = await supabase.functions.invoke("simulate-decision", { body: { question } });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
@@ -94,13 +92,8 @@ export default function Dashboard() {
   };
 
   const handleReset = () => {
-    setMessages([]);
-    setResult(null);
-    setSelectedScenario(null);
-    setInput("");
-    setCurrentQuestion("");
-    setMobileTab("chat");
-    setLastDecisionId(null);
+    setMessages([]); setResult(null); setSelectedScenario(null);
+    setInput(""); setCurrentQuestion(""); setMobileTab("chat"); setLastDecisionId(null);
   };
 
   const handleShare = async () => {
@@ -108,10 +101,7 @@ export default function Dashboard() {
     setShareLoading(true);
     try {
       const token = generateShareToken();
-      const { error } = await supabase
-        .from("decisions")
-        .update({ share_token: token } as any)
-        .eq("id", lastDecisionId);
+      const { error } = await supabase.from("decisions").update({ share_token: token } as any).eq("id", lastDecisionId);
       if (error) throw error;
       const url = `${window.location.origin}/shared/${token}`;
       await navigator.clipboard.writeText(url);
@@ -123,10 +113,13 @@ export default function Dashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+  const handleExportPdf = () => {
+    if (!result) return;
+    exportDecisionPdf(currentQuestion, result.summary, result.scenarios);
+    toast.success("PDF exported!");
   };
+
+  const handleSignOut = async () => { await signOut(); navigate("/"); };
 
   const exampleQuestions = [
     "Should I learn AI development or cybersecurity?",
@@ -143,13 +136,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Background orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-20 right-20 w-[400px] h-[400px] orb-1 rounded-full animate-pulse-glow" />
         <div className="absolute bottom-20 left-10 w-[350px] h-[350px] orb-2 rounded-full animate-pulse-glow" style={{ animationDelay: "2s" }} />
+        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] orb-4 rounded-full animate-pulse-glow" style={{ animationDelay: "4s" }} />
       </div>
 
-      {/* Header */}
       <header className="glass border-b border-border/30 h-14 flex items-center px-4 sm:px-6 shrink-0 z-50">
         <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
           <ArrowLeft className="w-4 h-4" />
@@ -163,10 +155,19 @@ export default function Dashboard() {
         </div>
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           {result && lastDecisionId && (
-            <Button variant="ghost" size="sm" onClick={handleShare} disabled={shareLoading}>
-              {shareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
-              <span className="hidden sm:inline ml-1">Share</span>
-            </Button>
+            <>
+              <Button variant="ghost" size="sm" onClick={() => toggleFavorite(lastDecisionId!)}>
+                <Star className={`w-4 h-4 ${isFavorite(lastDecisionId!) ? "fill-primary text-primary" : ""}`} />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleExportPdf}>
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">PDF</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleShare} disabled={shareLoading}>
+                {shareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+                <span className="hidden sm:inline ml-1">Share</span>
+              </Button>
+            </>
           )}
           {messages.length > 0 && (
             <Button variant="ghost" size="sm" onClick={handleReset}>
@@ -178,15 +179,12 @@ export default function Dashboard() {
             <>
               <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")}>
                 <BarChart3 className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Analytics</span>
               </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate("/history")}>
                 <History className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">History</span>
               </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate("/compare")}>
                 <GitCompare className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Compare</span>
               </Button>
             </>
           )}
@@ -200,7 +198,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Mobile tabs */}
       {result && (
         <div className="lg:hidden flex border-b border-border/30 bg-card/50 z-10">
           {(["chat", "scenarios", "timeline", "tree"] as const).map((tab) => (
@@ -231,7 +228,7 @@ export default function Dashboard() {
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg px-4">
-                  <div className="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center mx-auto mb-6 glow-primary">
+                  <div className="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center mx-auto mb-6 glow-primary animate-float">
                     <Sparkles className="w-10 h-10 text-primary-foreground" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-3">What decision are you facing?</h2>
@@ -308,7 +305,6 @@ export default function Dashboard() {
           <div className={`flex-col overflow-hidden transition-all duration-500 ${
             mobileTab !== "chat" ? "flex w-full lg:w-3/5" : "hidden lg:flex lg:w-3/5"
           }`}>
-            {/* Desktop view tabs */}
             <div className="hidden lg:flex items-center gap-2 p-4 border-b border-border/30">
               {viewTabs.map((tab) => (
                 <button
@@ -325,7 +321,6 @@ export default function Dashboard() {
 
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               <AnimatePresence mode="wait">
-                {/* Determine which view to show */}
                 {(() => {
                   const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : "tree";
 
@@ -345,7 +340,7 @@ export default function Dashboard() {
                         <Button variant="ghost" size="sm" onClick={() => setSelectedScenario(null)} className="mb-4">
                           <ArrowLeft className="w-4 h-4 mr-1" /> All Scenarios
                         </Button>
-                        <div className="glass rounded-2xl p-4 sm:p-6">
+                        <div className="glass-premium rounded-2xl p-4 sm:p-6">
                           <h3 className="text-xl font-display font-bold text-foreground mb-2">{selectedScenario.title}</h3>
                           <p className="text-sm text-muted-foreground mb-6">{selectedScenario.description}</p>
                           <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -361,7 +356,7 @@ export default function Dashboard() {
                           <h4 className="font-display font-semibold text-foreground mb-3">Timeline</h4>
                           <div className="space-y-3 mb-6">
                             {selectedScenario.timeline.map((t, i) => (
-                              <div key={i} className="flex gap-3">
+                              <div key={i} className="flex gap-3 items-start">
                                 <div className="w-16 sm:w-20 shrink-0 text-xs font-display font-semibold text-primary">{t.year}</div>
                                 <div className="text-sm text-muted-foreground">{t.milestone}</div>
                               </div>
