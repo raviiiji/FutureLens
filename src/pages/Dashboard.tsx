@@ -31,6 +31,13 @@ interface Message {
   content: string;
 }
 
+// Helper to generate share token
+function generateShareToken() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, isGuest, signOut } = useAuth();
