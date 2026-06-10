@@ -25,7 +25,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are Aevora AI, an advanced decision intelligence and knowledge assistant. You have already analyzed a decision and generated scenarios for the user.
+    const systemPrompt = `You are FutureLens AI, an advanced decision intelligence and knowledge assistant. You have already analyzed a decision and generated scenarios for the user.
 
 Here is the context of the analysis:
 ${scenarioContext ? JSON.stringify(scenarioContext, null, 2) : "No context provided."}

@@ -87,7 +87,7 @@ export default function StrategicAdvisor({ summary, scenarios, question }: Strat
             </div>
             <div>
               <h3 className="font-display font-bold text-foreground text-lg">AI Strategic Analysis</h3>
-              <p className="text-xs text-muted-foreground">Powered by Aevora Intelligence Engine</p>
+              <p className="text-xs text-muted-foreground">Powered by FutureLens Intelligence Engine</p>
             </div>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">{summary}</p>

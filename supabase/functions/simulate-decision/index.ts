@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are Aevora AI, an advanced decision intelligence and knowledge assistant designed to provide extremely accurate, deeply researched, and highly structured answers.
+const SYSTEM_PROMPT = `You are FutureLens AI, an advanced decision intelligence and knowledge assistant designed to provide extremely accurate, deeply researched, and highly structured answers.
 
 Your primary goal is to help users fully understand any topic, problem, or decision by providing comprehensive explanations that go far beyond typical chatbot responses.
 
@@ -59,13 +59,28 @@ Generate 2-4 realistic, deeply researched scenarios. Each scenario should:
 
 The summary should read like strategic consulting advice — specific, insightful, and personalized to the decision context.`;
 
+function getDomainContext(domain?: string): string {
+  switch (domain) {
+    case "education":
+      return `\n\n## DOMAIN: Education & Placement Readiness\nThe user is asking about education or placement. You MUST tailor your analysis to include:\n- **Placement readiness assessment** (estimate a percentage) in the summary\n- Skill gap analysis relative to current industry hiring requirements\n- Industry demand data for the relevant field/degree (2024-2026 trends)\n- Expected salary ranges at entry, mid, and senior levels\n- Academic vs practical skill development milestones in timelines\n- Placement probability, resume strength, and interview readiness steps in actions\n- Factor in: college tier impact, internship importance, competitive exam relevance, certification value vs degree value`;
+    case "finance":
+      return `\n\n## DOMAIN: Finance & Investment\nThe user is asking about a financial or investment decision. You MUST tailor your analysis to include:\n- **Expected ROI projections** with approximate percentages in the summary\n- Risk-to-reward ratio for each scenario\n- Market trend analysis based on 2024-2026 economic conditions\n- Inflation-adjusted projections in timelines\n- Diversification and emergency fund considerations in actions\n- Tax implications and regulatory factors where relevant\n- Factor in: interest rate environment, equity vs real estate vs debt instruments, SIP vs lumpsum, insurance needs`;
+    case "healthcare":
+      return `\n\n## DOMAIN: Healthcare & Wellness\nThe user is asking about health, wellness, or medical decisions. You MUST tailor your analysis to include:\n- **Long-term health impact assessment** with quality-of-life projections in the summary\n- Preventive vs reactive approach comparison across scenarios\n- Mental health and stress considerations alongside physical health\n- Lifestyle modification roadmap with measurable health milestones in timelines\n- Healthcare cost projections and insurance considerations\n- Evidence-based recommendations citing general medical consensus\n- Factor in: age-related risk factors, family history considerations, lifestyle sustainability, sleep/nutrition/exercise balance\n- IMPORTANT: Include a disclaimer that this is AI-generated guidance, not medical advice. Consult healthcare professionals.`;
+    case "business":
+      return `\n\n## DOMAIN: Organization & Business Productivity\nThe user is asking about organizational decisions, business operations, or team productivity. You MUST tailor your analysis to include:\n- **Operational efficiency impact** with productivity metrics in the summary\n- Failure point identification — what could go wrong and when\n- Scalability assessment across different growth trajectories\n- Resource allocation analysis (budget, headcount, infrastructure)\n- KPI impact predictions in timelines (revenue, churn, velocity, uptime)\n- Change management and team adoption considerations in actions\n- Factor in: market competition, technical debt, team morale, vendor lock-in risks, compliance requirements`;
+    default:
+      return `\n\n## DOMAIN: Career & Professional Development\nThe user is asking about career or professional decisions. Include:\n- Current job market demand and salary expectations\n- Industry disruption factors (AI, automation, remote work)\n- Networking and personal branding milestones in timelines\n- Concrete skill acquisition steps with specific platforms/courses in actions`;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { question } = await req.json();
+    const { question, domain } = await req.json();
     if (!question || typeof question !== "string" || question.trim().length === 0) {
       return new Response(JSON.stringify({ error: "Question is required" }), {
         status: 400,
@@ -87,7 +102,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: SYSTEM_PROMPT + getDomainContext(domain) },
           { role: "user", content: question },
         ],
       }),

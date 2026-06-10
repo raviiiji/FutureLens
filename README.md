@@ -1,4 +1,4 @@
-# Aevora
+# FutureLens
 
 <img width="1536" height="1024" alt="Designer (67)" src="https://github.com/user-attachments/assets/7d18df32-9d52-4ada-b1e5-be534474762d" />
 
@@ -8,15 +8,15 @@
 ---
 
 # Demo App
-[Aevora App](https://aevora.lovable.app)
+[FutureLens App](https://FutureLens.lovable.app)
 
 --- 
 
-Aevora is an AI-powered decision simulation platform designed to help individuals explore the possible future outcomes of their choices. By combining artificial intelligence with structured scenario analysis, Aevora enables users to visualize multiple potential paths before making important decisions related to career, education, skills, or life planning.
+FutureLens is an AI-powered decision simulation platform designed to help individuals explore the possible future outcomes of their choices. By combining artificial intelligence with structured scenario analysis, FutureLens enables users to visualize multiple potential paths before making important decisions related to career, education, skills, or life planning.
 
-In a world where people constantly face uncertainty about the future, Aevora acts as a strategic companion that provides insights, simulated outcomes, and decision intelligence.
+In a world where people constantly face uncertainty about the future, FutureLens acts as a strategic companion that provides insights, simulated outcomes, and decision intelligence.
 
-Instead of simply offering advice, Aevora generates possible future scenarios that help users think critically about the consequences of their actions. The goal is to transform decision-making from guesswork into a more informed and strategic process.
+Instead of simply offering advice, FutureLens generates possible future scenarios that help users think critically about the consequences of their actions. The goal is to transform decision-making from guesswork into a more informed and strategic process.
 
 ---
 
@@ -26,7 +26,7 @@ Instead of simply offering advice, Aevora generates possible future scenarios th
 - [Problem Statement](#problem-statement)
 - [Vision](#vision)
 - [Key Features](#key-features)
-- [How Aevora Works](#how-aevora-works)
+- [How FutureLens Works](#how-FutureLens-works)
 - [Demo](#demo)
 - [System Architecture](#system-architecture)
 - [Technology Stack](#technology-stack)
@@ -70,9 +70,9 @@ From students choosing their fields of study to professionals deciding which ski
 
 Despite the importance of these choices, most people rely on intuition, fragmented advice, or short-term thinking when making decisions.
 
-Aevora aims to address this gap by introducing a system that helps individuals simulate potential future outcomes before committing to a path.
+FutureLens aims to address this gap by introducing a system that helps individuals simulate potential future outcomes before committing to a path.
 
-Using artificial intelligence, Aevora analyzes a user’s question and generates structured scenarios that illustrate possible trajectories.
+Using artificial intelligence, FutureLens analyzes a user’s question and generates structured scenarios that illustrate possible trajectories.
 
 This allows users to explore options, understand trade-offs, and gain a clearer understanding of their potential future paths.
 
@@ -109,13 +109,13 @@ While productivity tools exist for tasks, notes, and scheduling, very few tools 
 
 Uncertainty often prevents individuals from taking action. The inability to foresee outcomes creates hesitation and anxiety.
 
-Aevora addresses these problems by enabling users to explore structured simulations of future possibilities.
+FutureLens addresses these problems by enabling users to explore structured simulations of future possibilities.
 
 ---
 
 # Vision
 
-The long-term vision of Aevora is to become a global platform for **AI-powered decision intelligence**.
+The long-term vision of FutureLens is to become a global platform for **AI-powered decision intelligence**.
 
 The platform aims to empower individuals by providing:
 
@@ -125,7 +125,7 @@ The platform aims to empower individuals by providing:
 
 Instead of reacting to circumstances, users can proactively design their future paths.
 
-Aevora seeks to bridge the gap between:
+FutureLens seeks to bridge the gap between:
 
 **present decisions and future outcomes.**
 
@@ -135,7 +135,7 @@ Aevora seeks to bridge the gap between:
 
 ## Decision Simulation
 
-Aevora generates multiple potential future scenarios based on a user's question or decision.
+FutureLens generates multiple potential future scenarios based on a user's question or decision.
 
 Each scenario represents a different possible outcome.
 
@@ -150,7 +150,7 @@ The system analyzes the decision context and provides structured insights about:
 
 ## Future Timeline
 
-Aevora constructs a multi-year timeline illustrating how a decision might evolve over time.
+FutureLens constructs a multi-year timeline illustrating how a decision might evolve over time.
 
 Example:
 
@@ -171,7 +171,7 @@ A simple chat interface allows users to interact naturally with the system.
 
 ---
 
-# How Aevora Works
+# How FutureLens Works
 
 The system follows a structured process:
 
@@ -188,12 +188,12 @@ This pipeline transforms natural language questions into actionable insights.
 # Demo
 
 ## Demo App
-[Aevora App](https://aevora.lovable.app)
+[FutureLens App](https://FutureLens.lovable.app)
 
 ---
 
 ## Demo Video
-[Aevora Demo Video](https://youtu.be/acgx_toH6jg)
+[FutureLens Demo Video](https://youtu.be/acgx_toH6jg)
 
 ---
 
@@ -277,7 +277,7 @@ This pipeline transforms natural language questions into actionable insights.
 
 # System Architecture
 
-Aevora uses a layered architecture consisting of:
+FutureLens uses a layered architecture consisting of:
 
 ### Frontend Layer
 
@@ -343,7 +343,7 @@ The final output presents several possible future paths.
 
 # User Experience
 
-Aevora focuses heavily on simplicity and clarity.
+FutureLens focuses heavily on simplicity and clarity.
 
 Users interact with the system through:
 
@@ -392,7 +392,7 @@ This helps users evaluate different strategies.
 
 # Future Timeline Generation
 
-Aevora translates scenarios into chronological timelines.
+FutureLens translates scenarios into chronological timelines.
 
 This allows users to visualize how decisions unfold over time.
 
@@ -457,7 +457,7 @@ Security measures include:
 
 # Performance Optimization
 
-To ensure smooth performance, Aevora implements:
+To ensure smooth performance, FutureLens implements:
 
 - efficient API calls
 - lightweight frontend components
@@ -517,7 +517,7 @@ The architecture supports future expansion through:
 
 # Real World Applications
 
-Aevora can be applied in multiple domains:
+FutureLens can be applied in multiple domains:
 
 ### Career Planning
 
@@ -541,7 +541,7 @@ Helping learners decide which skills to pursue.
 
 The global demand for decision support systems continues to grow.
 
-Aevora represents a new category:
+FutureLens represents a new category:
 
 **AI-powered personal decision intelligence.**
 
@@ -551,7 +551,7 @@ Aevora represents a new category:
 
 While productivity tools exist, few platforms focus specifically on future decision simulation.
 
-Aevora differentiates itself by combining:
+FutureLens differentiates itself by combining:
 
 - AI reasoning
 - structured scenario generation
@@ -600,7 +600,7 @@ Future enhancements may include:
 
 # Deployment Guide
 
-Aevora can be deployed using modern cloud platforms.
+FutureLens can be deployed using modern cloud platforms.
 
 Recommended deployment platform:
 
@@ -612,7 +612,7 @@ Vercel.
 
 Clone the repository:
 ```
-git clone https://github.com/ankitkumar04100/aevora.git
+git clone https://github.com/ravir/FutureLens.git
 ```
 
 Navigate to the project directory.
@@ -654,14 +654,14 @@ This project is released under the MIT License.
 
 # Acknowledgements
 
-We acknowledge the open-source community and AI research community for enabling the technologies that make projects like Aevora possible.
+We acknowledge the open-source community and AI research community for enabling the technologies that make projects like FutureLens possible.
 
 ---
 
 # Final Thoughts
 
-Aevora represents a step toward a future where individuals can explore the consequences of their decisions before committing to them.
+FutureLens represents a step toward a future where individuals can explore the consequences of their decisions before committing to them.
 
-By combining artificial intelligence with structured scenario analysis, Aevora introduces a new paradigm for decision-making.
+By combining artificial intelligence with structured scenario analysis, FutureLens introduces a new paradigm for decision-making.
 
 The project demonstrates how technology can empower people to think more strategically, explore possibilities, and navigate uncertainty with greater confidence.

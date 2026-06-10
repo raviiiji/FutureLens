@@ -21,7 +21,7 @@ export function exportDecisionPdf(question: string, summary: string, scenarios: 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("Aevora — Decision Report", 14, 18);
+  doc.text("FutureLens — Decision Report", 14, 18);
 
   // Question
   doc.setTextColor(30, 30, 50);
@@ -105,8 +105,8 @@ export function exportDecisionPdf(question: string, summary: string, scenarios: 
     doc.setPage(i);
     doc.setFontSize(7);
     doc.setTextColor(150);
-    doc.text(`Aevora Decision Report — Page ${i}/${pageCount} — Generated ${new Date().toLocaleDateString()}`, 14, doc.internal.pageSize.getHeight() - 8);
+    doc.text(`FutureLens Decision Report — Page ${i}/${pageCount} — Generated ${new Date().toLocaleDateString()}`, 14, doc.internal.pageSize.getHeight() - 8);
   }
 
-  doc.save(`aevora-decision-${Date.now()}.pdf`);
+  doc.save(`FutureLens-decision-${Date.now()}.pdf`);
 }

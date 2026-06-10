@@ -27,24 +27,24 @@ const features = [
 
 const steps = [
   { number: "01", title: "Describe Your Decision", description: "Type your question naturally — career moves, education paths, business strategies, anything.", icon: MessageCircle, gradient: "gradient-primary" },
-  { number: "02", title: "AI Simulates Futures", description: "Aevora's intelligence engine analyzes trends, risks, and opportunities across multiple scenarios.", icon: Brain, gradient: "gradient-aurora" },
+  { number: "02", title: "AI Simulates Futures", description: "FutureLens's intelligence engine analyzes trends, risks, and opportunities across multiple scenarios.", icon: Brain, gradient: "gradient-aurora" },
   { number: "03", title: "Explore & Compare", description: "Review timelines, decision trees, and strategic insights. Ask follow-up questions for deeper clarity.", icon: GitBranch, gradient: "gradient-warm" },
   { number: "04", title: "Decide with Confidence", description: "Choose your path armed with data-driven analysis, risk assessment, and concrete action steps.", icon: Target, gradient: "gradient-sky" },
 ];
 
 const testimonials = [
-  { quote: "Aevora helped me decide between pursuing a master's degree and entering the job market. The 5-year timeline comparison was eye-opening.", name: "Career Changer", role: "Software Engineer → Data Scientist", avatar: "🎯" },
+  { quote: "FutureLens helped me decide between pursuing a master's degree and entering the job market. The 5-year timeline comparison was eye-opening.", name: "Career Changer", role: "Software Engineer → Data Scientist", avatar: "🎯" },
   { quote: "I used it to compare bootstrapping vs. raising VC funding. The risk analysis and strategic advisor gave me clarity I couldn't find anywhere else.", name: "Startup Founder", role: "Tech Entrepreneur", avatar: "🚀" },
   { quote: "The follow-up chat is incredible — I could drill into specific scenarios and get actionable advice on demand.", name: "Product Manager", role: "Big Tech Company", avatar: "💡" },
 ];
 
 const useCases = [
+  { emoji: "🎓", title: "Placement Readiness", desc: "\"Am I ready for a software engineering placement?\"", metrics: "Skill Gap • Demand Data" },
+  { emoji: "🏢", title: "Business Operations", desc: "\"What are the failure risks if we migrate to cloud?\"", metrics: "KPI Impact • ROI" },
+  { emoji: "❤️", title: "Healthcare & Wellness", desc: "\"What is the long-term impact of my sleep schedule?\"", metrics: "Health Risk • Quality of Life" },
+  { emoji: "📈", title: "Finance & Investment", desc: "\"Should I diversify my portfolio into real estate?\"", metrics: "ROI Projections • Risk Ratio" },
   { emoji: "🎯", title: "Career Pivots", desc: "\"Should I switch to AI development or stay in web dev?\"", metrics: "85% growth • Low risk" },
-  { emoji: "🎓", title: "Education Decisions", desc: "\"Is a master's degree worth it for my career goals?\"", metrics: "70% growth • Medium risk" },
   { emoji: "🚀", title: "Startup Strategy", desc: "\"Should I bootstrap or seek venture capital?\"", metrics: "92% growth • High risk" },
-  { emoji: "💻", title: "Technology Choices", desc: "\"Which tech stack should I invest in learning?\"", metrics: "78% growth • Low risk" },
-  { emoji: "🏠", title: "Life Decisions", desc: "\"Should I relocate for this job opportunity?\"", metrics: "65% growth • Medium risk" },
-  { emoji: "📈", title: "Investment Strategy", desc: "\"Should I diversify or focus my portfolio?\"", metrics: "75% growth • Medium risk" },
 ];
 
 function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
@@ -80,7 +80,7 @@ export default function LandingPage() {
             <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center glow-primary">
               <Brain className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-bold text-foreground">Aevora</span>
+            <span className="font-display text-xl font-bold text-foreground">FutureLens</span>
             <span className="hidden sm:inline text-[10px] font-display font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full">AI</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
@@ -256,7 +256,7 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
             <span className="text-xs font-display font-bold uppercase tracking-widest text-warm mb-4 block">Preview</span>
             <h2 className="text-4xl md:text-6xl font-display font-bold mb-5">
-              See Aevora <span className="gradient-text-warm">In Action</span>
+              See FutureLens <span className="gradient-text-warm">In Action</span>
             </h2>
           </motion.div>
 
@@ -332,7 +332,7 @@ export default function LandingPage() {
             <h2 className="text-4xl md:text-6xl font-display font-bold mb-5">
               Real-World <span className="gradient-text-warm">Use Cases</span>
             </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">From career pivots to investment strategy — Aevora handles it all.</p>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">From career pivots to investment strategy — FutureLens handles it all.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
@@ -443,7 +443,7 @@ export default function LandingPage() {
               <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
                 <Brain className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-display text-sm font-bold text-foreground">Aevora</span>
+              <span className="font-display text-sm font-bold text-foreground">FutureLens</span>
               <span className="text-[10px] font-display text-muted-foreground">AI Decision Intelligence</span>
             </div>
             <div className="flex items-center gap-6">
@@ -451,7 +451,7 @@ export default function LandingPage() {
               <a href="#how-it-works" className="text-xs text-muted-foreground hover:text-primary transition-colors font-display">How It Works</a>
               <a href="#use-cases" className="text-xs text-muted-foreground hover:text-primary transition-colors font-display">Use Cases</a>
             </div>
-            <p className="text-xs text-muted-foreground">© 2026 Aevora. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2026 FutureLens. All rights reserved.</p>
           </div>
         </div>
       </footer>

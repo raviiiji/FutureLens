@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Send, ArrowLeft, Loader2, GitBranch, Clock, AlertTriangle, TrendingUp, Sparkles, RotateCcw, History, LogOut, User, GitCompare, TreePine, UserCircle, Share2, BarChart3, Star, Download, Lightbulb, MessageCircle, Shield, Zap, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { Brain, Send, Loader2, GitBranch, Clock, TreePine, Lightbulb, MessageCircle, History, LogOut, User, GitCompare, BarChart3, Star, Download, Share2, Settings, ArrowRight, LayoutDashboard, Target } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -127,14 +127,15 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [activeView, setActiveView] = useState<"scenarios" | "timeline" | "tree" | "advisor">("scenarios");
-  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
-  const [mobileTab, setMobileTab] = useState<"chat" | "scenarios" | "timeline" | "tree" | "advisor">("chat");
+  const [domain, setDomain] = useState("career");
   const [lastDecisionId, setLastDecisionId] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
   const [isStreaming, setIsStreaming] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // For mobile sidebar toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -143,30 +144,21 @@ export default function Dashboard() {
   const handleSubmit = async () => {
     if (!input.trim() || isAnalyzing || isStreaming) return;
     const question = input.trim();
-    setInput("");
-
-    // If we already have results, this is a follow-up question
-    if (result) {
-      handleFollowUp(question);
-      return;
-    }
-
+    
     setResult(null);
-    setSelectedScenario(null);
     setCurrentQuestion(question);
-    setMessages((prev) => [...prev, { role: "user", content: question }]);
+    setMessages([]);
     setIsAnalyzing(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("simulate-decision", { body: { question } });
+      const { data, error } = await supabase.functions.invoke("simulate-decision", { body: { question, domain } });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
       const analysis: AnalysisResult = data;
       setResult(analysis);
-      setMessages((prev) => [...prev, { role: "assistant", content: analysis.summary }]);
 
-      if (user) {
+      if (user && !isGuest) {
         const { data: inserted } = await supabase.from("decisions").insert({
           user_id: user.id,
           question,
@@ -178,13 +170,18 @@ export default function Dashboard() {
     } catch (err: any) {
       console.error("Analysis error:", err);
       toast.error(err.message || "Failed to analyze");
-      setMessages((prev) => [...prev, { role: "assistant", content: `Sorry, an error occurred: ${err.message}. Please try again.` }]);
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const handleFollowUp = async (question: string) => {
+  const handleFollowUpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isStreaming || !result) return;
+    
+    const question = input.trim();
+    setInput("");
+    
     const userMsg: Message = { role: "user", content: question };
     setMessages((prev) => [...prev, userMsg]);
     setIsStreaming(true);
@@ -221,11 +218,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleReset = () => {
-    setMessages([]); setResult(null); setSelectedScenario(null);
-    setInput(""); setCurrentQuestion(""); setMobileTab("chat"); setLastDecisionId(null);
-  };
-
   const handleShare = async () => {
     if (!lastDecisionId) { toast.error("No decision to share"); return; }
     setShareLoading(true);
@@ -252,428 +244,320 @@ export default function Dashboard() {
   const handleSignOut = async () => { await signOut(); navigate("/"); };
 
   const exampleQuestions = [
-    "Should I learn AI development or cybersecurity?",
-    "Is it worth getting a master's degree in 2026?",
-    "Should I start a startup or join a big tech company?",
-    "Should I switch from web development to data science?",
-  ];
-
-  const followUpSuggestions = result ? [
-    `What specific skills do I need for "${result.scenarios[0]?.title}"?`,
-    "Which path has the best ROI over 5 years?",
-    "What are the biggest risks I should prepare for?",
-    "Can you compare the first-year actions in more detail?",
-  ] : [];
-
-  const viewTabs = [
-    { key: "scenarios" as const, label: "Paths", icon: GitBranch },
-    { key: "timeline" as const, label: "Timeline", icon: Clock },
-    { key: "tree" as const, label: "Tree", icon: TreePine },
-    { key: "advisor" as const, label: "Advisor", icon: Lightbulb },
+    { text: "Should I learn AI development or cybersecurity?", domain: "career" },
+    { text: "Is it worth getting a master's degree in 2026?", domain: "education" },
+    { text: "Should I invest my savings in an index fund or real estate?", domain: "finance" },
+    { text: "Should we migrate our infrastructure to the cloud?", domain: "business" },
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="flex h-screen bg-background overflow-hidden font-sans selection:bg-primary/20">
+      {/* Background ambient elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-20 right-20 w-[400px] h-[400px] orb-1 rounded-full animate-pulse-glow" />
-        <div className="absolute bottom-20 left-10 w-[350px] h-[350px] orb-2 rounded-full animate-pulse-glow" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] orb-4 rounded-full animate-pulse-glow" style={{ animationDelay: "4s" }} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] orb-1 rounded-full animate-pulse-glow opacity-30" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] orb-2 rounded-full animate-pulse-glow opacity-20" style={{ animationDelay: "2s" }} />
       </div>
 
-      {/* Header */}
-      <header className="glass border-b border-border/30 h-14 flex items-center px-4 sm:px-6 shrink-0 z-50">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
-          <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline ml-1">Home</span>
-        </Button>
-        <div className="flex items-center gap-2 ml-2">
-          <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
-            <Brain className="w-4 h-4 text-primary-foreground" />
+      {/* Sidebar */}
+      <aside className={`w-64 border-r border-border/40 bg-card/60 backdrop-blur-md flex flex-col z-50 transition-all duration-300 absolute md:relative h-full ${sidebarOpen ? "left-0" : "-left-64 md:left-0"}`}>
+        <div className="h-16 flex items-center px-6 border-b border-border/40 shrink-0">
+          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center mr-3 shadow-md">
+            <Target className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-foreground hidden sm:inline">Aevora</span>
+          <span className="font-display font-bold text-lg text-foreground tracking-tight">FutureLens</span>
         </div>
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          {result && lastDecisionId && (
-            <>
-              <Button variant="ghost" size="sm" onClick={() => toggleFavorite(lastDecisionId!)}>
-                <Star className={`w-4 h-4 ${isFavorite(lastDecisionId!) ? "fill-primary text-primary" : ""}`} />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleExportPdf}>
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">PDF</span>
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleShare} disabled={shareLoading}>
-                {shareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
-                <span className="hidden sm:inline ml-1">Share</span>
-              </Button>
-            </>
-          )}
-          {messages.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={handleReset}>
-              <RotateCcw className="w-4 h-4" />
-              <span className="hidden sm:inline ml-1">New</span>
-            </Button>
-          )}
+        
+        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6">
+          <div>
+            <p className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Simulate</p>
+            <div className="space-y-1">
+              <button onClick={() => { setResult(null); setInput(""); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-md bg-primary/10 text-primary font-medium text-sm transition-colors">
+                <LayoutDashboard className="w-4 h-4" /> New Simulation
+              </button>
+            </div>
+          </div>
+          
           {user && !isGuest && (
-            <>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/analytics")}>
-                <BarChart3 className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/history")}>
-                <History className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/favorites")}>
-                <Star className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/compare")}>
-                <GitCompare className="w-4 h-4" />
-              </Button>
-            </>
-          )}
-          <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
-            <UserCircle className="w-4 h-4" />
-          </Button>
-          <ThemeToggle />
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4" />
-          </Button>
-        </div>
-      </header>
-
-      {/* Mobile tabs */}
-      {result && (
-        <div className="lg:hidden flex border-b border-border/30 bg-card/50 z-10">
-          {(["chat", "scenarios", "timeline", "tree", "advisor"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => { setMobileTab(tab); if (tab !== "scenarios") setSelectedScenario(null); }}
-              className={`flex-1 py-3 text-xs font-display font-medium capitalize transition-all ${
-                mobileTab === tab ? "text-primary border-b-2 border-primary" : "text-muted-foreground"
-              }`}
-            >
-              {tab === "chat" && "💬 Chat"}
-              {tab === "scenarios" && "🔀 Paths"}
-              {tab === "timeline" && "📅 Timeline"}
-              {tab === "tree" && "🌳 Tree"}
-              {tab === "advisor" && "💡 Advisor"}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="flex-1 flex overflow-hidden relative z-10">
-        {/* Chat Section */}
-        <div className={`flex flex-col transition-all duration-500 ${
-          result
-            ? mobileTab === "chat" ? "w-full lg:w-2/5" : "hidden lg:flex lg:w-2/5"
-            : "w-full"
-        } lg:border-r border-border/30`}>
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg px-4">
-                  <div className="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center mx-auto mb-6 glow-primary animate-float">
-                    <Sparkles className="w-10 h-10 text-primary-foreground" />
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-3">What decision are you facing?</h2>
-                  <p className="text-muted-foreground mb-8 text-sm sm:text-base">Describe your situation and AI will simulate multiple future outcomes.</p>
-                  {isGuest && (
-                    <div className="glass rounded-xl px-4 py-3 mb-6 text-xs text-muted-foreground border-l-4 border-l-warm">
-                      <User className="w-3 h-3 inline mr-1" />
-                      Guest mode — <button onClick={() => navigate("/auth")} className="text-primary hover:underline font-medium">Sign up</button> to save decisions permanently
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-3">
-                    {exampleQuestions.map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => setInput(q)}
-                        className="glass glass-hover rounded-xl px-4 py-3 text-sm text-left text-muted-foreground hover:text-foreground transition-all group"
-                      >
-                        <span className="text-primary mr-2 group-hover:mr-3 transition-all">→</span>
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
+            <div>
+              <p className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Workspace</p>
+              <div className="space-y-1">
+                <button onClick={() => navigate("/history")} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground font-medium text-sm transition-colors">
+                  <History className="w-4 h-4" /> History
+                </button>
+                <button onClick={() => navigate("/favorites")} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground font-medium text-sm transition-colors">
+                  <Star className="w-4 h-4" /> Saved Scenarios
+                </button>
+                <button onClick={() => navigate("/compare")} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground font-medium text-sm transition-colors">
+                  <GitCompare className="w-4 h-4" /> Compare
+                </button>
+                <button onClick={() => navigate("/analytics")} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground font-medium text-sm transition-colors">
+                  <BarChart3 className="w-4 h-4" /> Analytics
+                </button>
               </div>
-            ) : (
-              <div className="space-y-4 max-w-2xl mx-auto">
-                <AnimatePresence>
-                  {messages.map((msg, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                        msg.role === "user"
-                          ? "gradient-primary text-primary-foreground"
-                          : "glass"
-                      }`}>
-                        {msg.role === "assistant" ? (
-                          <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-display prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-li:text-muted-foreground">
-                            <ReactMarkdown>{msg.content}</ReactMarkdown>
-                          </div>
-                        ) : (
-                          msg.content
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+            </div>
+          )}
+        </div>
 
-                {isAnalyzing && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 glass rounded-xl px-4 py-3 w-fit">
-                    <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                    <span className="text-sm text-muted-foreground">AI is simulating future scenarios...</span>
-                  </motion.div>
-                )}
+        <div className="p-4 border-t border-border/40 space-y-3 shrink-0">
+          <div className="flex items-center justify-between px-2">
+            <span className="text-sm font-medium text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
+          {isGuest ? (
+            <Button variant="outline" className="w-full" onClick={() => navigate("/auth")}>
+              Sign Up to Save
+            </Button>
+          ) : (
+            <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive font-medium text-sm transition-colors">
+              <LogOut className="w-4 h-4" /> Sign Out
+            </button>
+          )}
+        </div>
+      </aside>
 
-                {isStreaming && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 px-2 w-fit">
-                    <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
-                    </div>
-                  </motion.div>
-                )}
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 bg-background/50">
+        {/* Header */}
+        <header className="h-16 flex items-center justify-between px-4 sm:px-8 border-b border-border/40 bg-card/30 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-3">
+            <button className="md:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <LayoutDashboard className="w-5 h-5" />
+            </button>
+            <h1 className="text-lg font-display font-semibold text-foreground tracking-tight hidden sm:block">
+              {result ? "Simulation Results" : "Decision Console"}
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {result && lastDecisionId && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => toggleFavorite(lastDecisionId!)} className="hidden sm:flex border-border/50 bg-background/50">
+                  <Star className={`w-4 h-4 mr-2 ${isFavorite(lastDecisionId!) ? "fill-gold text-gold" : ""}`} />
+                  {isFavorite(lastDecisionId!) ? "Saved" : "Save"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportPdf} className="border-border/50 bg-background/50">
+                  <Download className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Export PDF</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleShare} disabled={shareLoading} className="border-border/50 bg-background/50">
+                  {shareLoading ? <Loader2 className="w-4 h-4 animate-spin sm:mr-2" /> : <Share2 className="w-4 h-4 sm:mr-2" />}
+                  <span className="hidden sm:inline">Share</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </header>
 
-                {/* Follow-up suggestions */}
-                {result && !isAnalyzing && !isStreaming && followUpSuggestions.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="pt-4"
+        {/* Dashboard Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
+          <div className="max-w-7xl mx-auto space-y-6">
+            
+            {/* Configuration Panel */}
+            <div className="glass-premium rounded-xl border border-border/50 p-5 sm:p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Settings className="w-4 h-4 text-primary" />
+                <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">Simulation Parameters</h2>
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="w-full md:w-64 shrink-0 space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">Domain / Context</label>
+                  <select 
+                    value={domain} 
+                    onChange={(e) => setDomain(e.target.value)}
+                    disabled={isAnalyzing}
+                    className="w-full h-11 bg-background border border-border/50 rounded-lg px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all cursor-pointer"
                   >
-                    <div className="flex items-center gap-2 mb-3">
-                      <MessageCircle className="w-3.5 h-3.5 text-primary" />
-                      <span className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider">Ask a follow-up</span>
+                    <option value="career">Career & Professional</option>
+                    <option value="education">Education & Placement</option>
+                    <option value="finance">Finance & Investment</option>
+                    <option value="healthcare">Healthcare & Wellness</option>
+                    <option value="business">Organization & Business</option>
+                  </select>
+                </div>
+                
+                <div className="flex-1 space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">Decision Prompt</label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <input 
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter" && !result) { e.preventDefault(); handleSubmit(); } }}
+                        disabled={isAnalyzing || (result !== null)}
+                        placeholder={result ? currentQuestion : "e.g., Should we migrate our infrastructure to the cloud?"}
+                        className="w-full h-11 bg-background border border-border/50 rounded-lg px-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all disabled:opacity-50"
+                      />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      {followUpSuggestions.map((q) => (
-                        <button
-                          key={q}
-                          onClick={() => setInput(q)}
-                          className="glass glass-hover rounded-lg px-3 py-2 text-xs text-left text-muted-foreground hover:text-foreground transition-all group"
-                        >
-                          <span className="text-primary mr-1.5 group-hover:mr-2 transition-all">→</span>
-                          {q}
-                        </button>
+                    {!result ? (
+                      <Button onClick={handleSubmit} disabled={!input.trim() || isAnalyzing} className="h-11 px-6 shadow-lg shadow-primary/20 shrink-0">
+                        {isAnalyzing ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Simulating...</> : <><Brain className="w-4 h-4 mr-2" /> Run Simulation</>}
+                      </Button>
+                    ) : (
+                      <Button variant="outline" onClick={() => { setResult(null); setInput(""); }} className="h-11 px-6 shrink-0 border-border/50">
+                        <RotateCcw className="w-4 h-4 mr-2" /> Reset
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Empty State / Examples */}
+            {!isAnalyzing && !result && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pt-8 pb-12">
+                <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                  {exampleQuestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setInput(q.text); setDomain(q.domain); }}
+                      className="glass rounded-xl p-5 text-left border border-border/40 hover:border-primary/40 hover:shadow-md transition-all group relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ArrowRight className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="inline-block px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-3">
+                        {q.domain}
+                      </span>
+                      <p className="text-sm font-medium text-foreground leading-relaxed group-hover:text-primary transition-colors">{q.text}</p>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Loading State */}
+            {isAnalyzing && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-4">
+                <AnalysisSkeleton />
+              </motion.div>
+            )}
+
+            {/* Results Dashboard */}
+            {!isAnalyzing && result && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                
+                {/* Top Row: Strategic Advisor & Scenarios */}
+                <div className="grid lg:grid-cols-3 gap-6">
+                  {/* Left Column: Strategic Advisor Overview */}
+                  <div className="lg:col-span-1 glass-premium rounded-xl border border-border/50 p-6 flex flex-col shadow-sm">
+                    <h3 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2">
+                      <Lightbulb className="w-5 h-5 text-gold" /> Strategic Insight
+                    </h3>
+                    <div className="prose prose-sm dark:prose-invert text-muted-foreground flex-1">
+                      <ReactMarkdown>{result.summary}</ReactMarkdown>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Scenario Cards Grid */}
+                  <div className="lg:col-span-2 space-y-4">
+                    <h3 className="font-display font-bold text-lg text-foreground flex items-center gap-2 px-1">
+                      <GitBranch className="w-5 h-5 text-accent" /> Branching Paths
+                    </h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {result.scenarios.map((s, i) => (
+                        <div key={s.id} className="h-full">
+                          <ScenarioCard scenario={s} index={i} onClick={() => {}} />
+                        </div>
                       ))}
                     </div>
-                  </motion.div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
-            )}
-          </div>
+                  </div>
+                </div>
 
-          <div className="p-3 sm:p-4 border-t border-border/30">
-            <div className="max-w-2xl mx-auto">
-              {result && (
-                <p className="text-[10px] text-muted-foreground mb-2 flex items-center gap-1">
-                  <MessageCircle className="w-3 h-3" /> Ask follow-up questions about the scenarios
-                </p>
-              )}
-              <div className="flex gap-2 sm:gap-3">
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
-                  placeholder={result ? "Ask a follow-up question..." : "Describe your decision..."}
-                  rows={1}
-                  className="input-field flex-1 resize-none"
-                />
-                <Button variant="hero" size="icon" onClick={handleSubmit} disabled={!input.trim() || isAnalyzing || isStreaming} className="shrink-0 h-[46px] w-[46px]">
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+                {/* Middle Row: Timeline */}
+                <div className="glass-premium rounded-xl border border-border/50 p-6 shadow-sm overflow-hidden">
+                  <h3 className="font-display font-bold text-lg text-foreground mb-6 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-sky" /> Projected Timelines
+                  </h3>
+                  <div className="overflow-x-auto pb-4">
+                    <TimelineView scenarios={result.scenarios} />
+                  </div>
+                </div>
+
+                {/* Bottom Row: Decision Tree */}
+                <div className="glass-premium rounded-xl border border-border/50 p-6 shadow-sm h-[600px] flex flex-col">
+                  <h3 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2 shrink-0">
+                    <TreePine className="w-5 h-5 text-primary" /> Decision Tree Visualization
+                  </h3>
+                  <div className="flex-1 relative rounded-lg border border-border/30 overflow-hidden bg-background/50">
+                    <DecisionTree scenarios={result.scenarios} question={currentQuestion} />
+                  </div>
+                </div>
+
+                {/* Interactive Follow-up Chat */}
+                <div className="glass-premium rounded-xl border border-border/50 shadow-sm overflow-hidden flex flex-col">
+                  <div className="p-4 border-b border-border/40 bg-card/30 flex items-center justify-between">
+                    <h3 className="font-display font-bold text-base text-foreground flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4 text-primary" /> Deep Dive Analysis
+                    </h3>
+                    <span className="text-xs text-muted-foreground">Ask FutureLens AI for specifics</span>
+                  </div>
+                  
+                  <div className="p-4 bg-background/30 max-h-[400px] overflow-y-auto space-y-4">
+                    {messages.length === 0 && (
+                      <div className="text-center py-6">
+                        <p className="text-sm text-muted-foreground">Want to compare specific metrics? Need to know the biggest risk factors? Ask below.</p>
+                      </div>
+                    )}
+                    
+                    <AnimatePresence>
+                      {messages.map((msg, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                        >
+                          <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                            msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-sm shadow-md" : "glass border border-border/50 rounded-bl-sm"
+                          }`}>
+                            {msg.role === "assistant" ? (
+                              <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                              </div>
+                            ) : (
+                              msg.content
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                    
+                    {isStreaming && (
+                      <div className="flex items-center gap-2 px-4 py-2 glass w-fit rounded-full border border-border/50">
+                        <div className="flex gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
+                      </div>
+                    )}
+                    <div ref={chatEndRef} />
+                  </div>
+
+                  <div className="p-4 border-t border-border/40 bg-card/30">
+                    <form onSubmit={handleFollowUpSubmit} className="flex gap-3">
+                      <input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="E.g., Compare the first year actions of both scenarios..."
+                        className="flex-1 bg-background border border-border/50 rounded-lg px-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                      />
+                      <Button type="submit" disabled={!input.trim() || isStreaming} className="shrink-0 shadow-sm">
+                        <Send className="w-4 h-4 md:mr-2" />
+                        <span className="hidden md:inline">Ask AI</span>
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+
+              </motion.div>
+            )}
+
           </div>
         </div>
-
-        {/* Results Panel */}
-        {(result || isAnalyzing) && (
-          <div className={`flex-col overflow-hidden transition-all duration-500 ${
-            mobileTab !== "chat" ? "flex w-full lg:w-3/5" : "hidden lg:flex lg:w-3/5"
-          }`}>
-            {!isAnalyzing && result && (
-              <div className="hidden lg:flex items-center gap-2 p-4 border-b border-border/30">
-                {viewTabs.map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => { setActiveView(tab.key); setSelectedScenario(null); }}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-display font-medium transition-all duration-200 ${
-                      activeView === tab.key
-                        ? "bg-primary/15 text-primary border border-primary/30 shadow-[0_0_12px_hsl(var(--primary)/0.1)]"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4" /> {tab.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              {isAnalyzing ? (
-                <AnalysisSkeleton />
-              ) : (
-                <AnimatePresence mode="wait">
-                  {(() => {
-                    const currentView = mobileTab === "chat" ? activeView : mobileTab === "scenarios" ? "scenarios" : mobileTab === "timeline" ? "timeline" : mobileTab === "advisor" ? "advisor" : "tree";
-
-                    const tabTransition = {
-                      initial: { opacity: 0, y: 12, scale: 0.98 },
-                      animate: { opacity: 1, y: 0, scale: 1 },
-                      exit: { opacity: 0, y: -8, scale: 0.98 },
-                      transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
-                    };
-
-                    if (currentView === "scenarios" && !selectedScenario) {
-                      return (
-                        <motion.div key="scenarios" {...tabTransition} className="space-y-4">
-                          <div className="glass-premium rounded-2xl p-4 mb-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <GitBranch className="w-4 h-4 text-primary" />
-                              <h3 className="font-display font-bold text-foreground">Decision Paths</h3>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{result!.scenarios.length} scenarios analyzed • Click to explore in detail</p>
-                          </div>
-                          <div className="grid gap-4">
-                            {result!.scenarios.map((s, i) => (
-                              <ScenarioCard key={s.id} scenario={s} index={i} onClick={() => setSelectedScenario(s)} />
-                            ))}
-                          </div>
-                        </motion.div>
-                      );
-                    }
-
-                    if (currentView === "scenarios" && selectedScenario) {
-                      return (
-                        <motion.div key="detail" {...tabTransition}>
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedScenario(null)} className="mb-4">
-                            <ArrowLeft className="w-4 h-4 mr-1" /> All Scenarios
-                          </Button>
-                          <div className="glass-premium rounded-2xl overflow-hidden">
-                            {/* Header */}
-                            <div className="p-5 sm:p-6 border-b border-border/20">
-                              <h3 className="text-xl font-display font-bold text-foreground mb-2">{selectedScenario.title}</h3>
-                              <p className="text-sm text-muted-foreground leading-relaxed mb-4">{selectedScenario.description}</p>
-                              <div className="flex flex-wrap items-center gap-3">
-                                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
-                                  selectedScenario.riskLevel === "Low" ? "bg-primary/10" : selectedScenario.riskLevel === "Medium" ? "bg-warm/10" : "bg-destructive/10"
-                                }`}>
-                                  {selectedScenario.riskLevel === "Low" ? <Shield className="w-3.5 h-3.5 text-primary" /> : selectedScenario.riskLevel === "Medium" ? <AlertTriangle className="w-3.5 h-3.5 text-warm" /> : <Zap className="w-3.5 h-3.5 text-destructive" />}
-                                  <span className={`text-xs font-display font-bold ${selectedScenario.riskLevel === "Low" ? "text-primary" : selectedScenario.riskLevel === "Medium" ? "text-warm" : "text-destructive"}`}>
-                                    {selectedScenario.riskLevel} Risk
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10">
-                                  <TrendingUp className="w-3.5 h-3.5 text-primary" />
-                                  <span className="text-xs font-display font-bold text-primary">{selectedScenario.growthPotential}% Growth</span>
-                                </div>
-                                <div className="flex items-center gap-2 ml-auto">
-                                  <div className="h-2 w-24 bg-secondary rounded-full overflow-hidden">
-                                    <motion.div
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${selectedScenario.growthPotential}%` }}
-                                      transition={{ duration: 0.8 }}
-                                      className="h-full gradient-primary rounded-full"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Timeline */}
-                            <div className="p-5 sm:p-6 border-b border-border/20">
-                              <h4 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-primary" /> 5-Year Timeline
-                              </h4>
-                              <div className="space-y-4 relative">
-                                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/40 via-accent/30 to-warm/20" />
-                                {selectedScenario.timeline.map((t, i) => (
-                                  <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.08 }}
-                                    className="flex gap-4 items-start relative"
-                                  >
-                                    <div className="w-4 h-4 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center shrink-0 z-10">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                    </div>
-                                    <div className="flex-1 glass rounded-lg px-4 py-3">
-                                      <span className="text-xs font-display font-bold text-primary">{t.year}</span>
-                                      <p className="text-sm text-muted-foreground leading-relaxed mt-0.5">{t.milestone}</p>
-                                    </div>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="p-5 sm:p-6">
-                              <h4 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-accent" /> Recommended Actions
-                              </h4>
-                              <div className="space-y-3">
-                                {selectedScenario.actions.map((a, i) => (
-                                  <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.06 }}
-                                    className="flex items-start gap-3 glass rounded-lg px-4 py-3 group hover:border-primary/20 transition-all"
-                                  >
-                                    <span className="w-6 h-6 rounded-full gradient-primary text-primary-foreground flex items-center justify-center shrink-0 text-xs font-bold">{i + 1}</span>
-                                    <p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors">{a}</p>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    }
-
-                    if (currentView === "timeline") {
-                      return (
-                        <motion.div key="timeline" {...tabTransition}>
-                          <TimelineView scenarios={result!.scenarios} />
-                        </motion.div>
-                      );
-                    }
-
-                    if (currentView === "tree") {
-                      return (
-                        <motion.div key="tree" {...tabTransition}>
-                          <DecisionTree scenarios={result!.scenarios} question={currentQuestion} />
-                        </motion.div>
-                      );
-                    }
-
-                    if (currentView === "advisor") {
-                      return (
-                        <motion.div key="advisor" {...tabTransition}>
-                          <StrategicAdvisor summary={result!.summary} scenarios={result!.scenarios} question={currentQuestion} />
-                        </motion.div>
-                      );
-                    }
-
-                    return null;
-                  })()}
-                </AnimatePresence>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      </main>
     </div>
   );
 }
