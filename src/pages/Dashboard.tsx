@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Send, Loader2, GitBranch, Clock, TreePine, Lightbulb, MessageCircle, History, LogOut, User, GitCompare, BarChart3, Star, Download, Share2, Settings, ArrowRight, LayoutDashboard, Target } from "lucide-react";
+import { Brain, Send, Loader2, GitBranch, Clock, TreePine, Lightbulb, MessageCircle, History, LogOut, User, GitCompare, BarChart3, Star, Download, Share2, Settings, ArrowRight, LayoutDashboard, Target, RotateCcw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import TimelineView from "@/components/TimelineView";
 import DecisionTree from "@/components/DecisionTree";
 import ThemeToggle from "@/components/ThemeToggle";
 import StrategicAdvisor from "@/components/StrategicAdvisor";
+import { ErrorBoundary } from "react-error-boundary";
 import AnalysisSkeleton from "@/components/AnalysisSkeleton";
 import { useFavorites } from "@/hooks/useFavorites";
 import { exportDecisionPdf } from "@/utils/exportPdf";
@@ -262,6 +263,7 @@ export default function Dashboard() {
   ];
 
   return (
+    <ErrorBoundary fallbackRender={({error}) => <div className="text-red-500 p-10 font-bold bg-black w-full h-screen">CRASH: {error.message} <br/> {error.stack}</div>}>
     <div className="flex h-screen bg-background overflow-hidden font-sans selection:bg-primary/20">
       {/* Background ambient elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -570,5 +572,6 @@ export default function Dashboard() {
         </div>
       </main>
     </div>
+    </ErrorBoundary>
   );
 }
