@@ -155,7 +155,18 @@ export default function Dashboard() {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
-      const analysis: AnalysisResult = data;
+      const analysis: AnalysisResult = {
+        summary: data.summary || "No summary provided.",
+        scenarios: (data.scenarios || []).map((s: any, index: number) => ({
+          id: s.id || index,
+          title: s.title || "Untitled Scenario",
+          description: s.description || "No description provided.",
+          riskLevel: ["Low", "Medium", "High"].includes(s.riskLevel) ? s.riskLevel : "Medium",
+          growthPotential: typeof s.growthPotential === 'number' ? s.growthPotential : 50,
+          timeline: Array.isArray(s.timeline) ? s.timeline : [],
+          actions: Array.isArray(s.actions) ? s.actions : [],
+        }))
+      };
       setResult(analysis);
 
       if (user && !isGuest) {
