@@ -263,7 +263,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <ErrorBoundary fallbackRender={({error}) => <div className="text-red-500 p-10 font-bold bg-black w-full h-screen">CRASH: {error.message} <br/> {error.stack}</div>}>
+    <ErrorBoundary fallbackRender={({error}: any) => <div className="text-red-500 p-10 font-bold bg-black w-full h-screen">CRASH: {error?.message} <br/> {error?.stack}</div>}>
     <div className="flex h-screen bg-background overflow-hidden font-sans selection:bg-primary/20">
       {/* Background ambient elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
